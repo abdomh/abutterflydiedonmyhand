@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>a butterfly died on my hand</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Courier+Prime:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --void:#07070a;
+  --bone:#e8e4d6;
+  --fell:'IM Fell English',serif;
+  --corm:'Cormorant Garamond',serif;
+  --mono:'Courier Prime',monospace;
+}
+
+html,body{width:100%;height:100%;background:var(--void);overflow:hidden;cursor:none}
+
+/* ── cursor ── */
+#cur{
+  position:fixed;width:5px;height:5px;background:var(--bone);
+  border-radius:50%;pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);mix-blend-mode:difference;
+  transition:width .25s,height .25s,opacity .25s
+}
+#cur.big{width:26px;height:26px;opacity:.1}
+
+/* ── shared canvases ── */
+#cv{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* ── particles ── */
+#pts{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.pt{
+  position:absolute;border-radius:50%;
+  background:rgba(232,228,214,.45);
+  animation:pt-rise linear infinite;pointer-events:none
+}
+@keyframes pt-rise{
+  0%{transform:translateY(0) translateX(0) scale(0);opacity:0}
+  8%{opacity:.9}92%{opacity:.3}
+  100%{transform:translateY(-100vh) translateX(var(--d)) scale(.3);opacity:0}
+}
+
+/* ── stage ── */
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1}
+
+/* ── rings ── */
+.ring{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(232,228,214,.04);
+  animation:breathe ease-in-out infinite
+}
+.r1{width:480px;height:480px;animation-duration:9s}
+.r2{width:370px;height:370px;animation-duration:9s;animation-delay:-2s;border-color:rgba(232,228,214,.055)}
+.r3{width:260px;height:260px;animation-duration:9s;animation-delay:-4s;border-color:rgba(232,228,214,.03)}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.05);opacity:1}}
+
+/* ── butterfly ── */
+#bw{position:relative;width:320px;height:240px;z-index:10}
+#bsvg{width:100%;height:100%;overflow:visible;animation:drift 14s ease-in-out infinite}
+@keyframes drift{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  40%{transform:translateY(-10px) rotate(.5deg)}
+  70%{transform:translateY(6px) rotate(-.3deg)}
+}
+.w{fill:rgba(232,228,214,.07);stroke:rgba(232,228,214,.15);stroke-width:.5;cursor:pointer;transition:fill .3s,stroke .3s}
+.w:hover{fill:rgba(232,228,214,.15);stroke:rgba(232,228,214,.45)}
+.alive{animation:sup .12s step-end infinite!important}
+@keyframes sup{
+  0%{fill:rgba(232,228,214,.35);stroke:rgba(232,228,214,.9)}
+  35%{fill:rgba(232,228,214,.08);stroke:rgba(232,228,214,.3)}
+  70%{fill:rgba(232,228,214,.25);stroke:rgba(232,228,214,.7)}
+}
+
+#ttl{
+  position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-family:var(--fell);font-style:italic;
+  font-size:13px;color:rgba(232,228,214,.18);letter-spacing:.28em;
+  pointer-events:none;animation:tfade 11s ease-in-out infinite
+}
+@keyframes tfade{0%,100%{opacity:.4}50%{opacity:1}}
+#obs{
+  position:absolute;bottom:-74px;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-family:var(--mono);font-size:8px;
+  color:rgba(232,228,214,.09);letter-spacing:.22em;text-transform:uppercase;
+  pointer-events:none
+}
+
+/* ── corners ── */
+.corner{
+  position:fixed;font-family:var(--mono);font-size:8px;
+  color:rgba(232,228,214,.075);letter-spacing:.1em;text-transform:uppercase;
+  line-height:1.9;pointer-events:none;z-index:3
+}
+.c-tl{top:30px;left:38px}.c-tr{top:30px;right:38px;text-align:right}
+.c-bl{bottom:30px;left:38px}.c-br{bottom:30px;right:38px;text-align:right}
+
+#sph{
+  position:fixed;top:26px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:8px;color:rgba(232,228,214,.065);
+  letter-spacing:.18em;text-transform:uppercase;pointer-events:none;
+  white-space:nowrap;z-index:3;transition:opacity 1.4s
+}
+
+/* ══════════ VEILS ══════════ */
+.veil{
+  position:fixed;inset:0;z-index:100;
+  opacity:0;pointer-events:none;
+  transition:opacity .75s cubic-bezier(.16,1,.3,1);
+  overflow:hidden
+}
+.veil.open{opacity:1;pointer-events:all}
+
+.escb{
+  position:fixed;top:32px;right:40px;
+  font-family:var(--mono);font-size:9px;letter-spacing:.22em;
+  text-transform:uppercase;background:none;border:none;
+  cursor:pointer;opacity:.22;z-index:200;transition:opacity .3s;
+  color:var(--bone)
+}
+.escb.dk{color:#111}
+.escb:hover{opacity:.9}
+
+/* ══ VEIL 1 — cream/light: book statement ══ */
+#v1{background:#d9d5c4}
+
+.v1-bg{position:absolute;inset:0;pointer-events:none;z-index:0}
+.v1-scroll{
+  position:absolute;inset:0;overflow-y:auto;
+  display:flex;align-items:flex-start;justify-content:center;padding:80px 0 120px
+}
+.v1-inner{
+  position:relative;z-index:2;
+  max-width:560px;width:88%
+}
+
+/* floating annotation strips — decorative */
+.v1-strip{
+  position:absolute;font-family:var(--mono);font-size:7px;
+  color:rgba(0,0,0,.12);letter-spacing:.18em;text-transform:uppercase;
+  pointer-events:none;white-space:nowrap
+}
+
+.v1-rule{width:100%;height:1px;background:rgba(0,0,0,.07);margin:40px 0}
+
+.v1-label{
+  font-family:var(--mono);font-size:7px;color:rgba(0,0,0,.22);
+  letter-spacing:.28em;text-transform:uppercase;margin-bottom:56px;
+  display:flex;align-items:center;gap:16px
+}
+.v1-label::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.08)}
+
+.v1-title{
+  font-family:var(--fell);font-size:clamp(44px,7vw,76px);
+  line-height:.9;color:rgba(0,0,0,.75);margin-bottom:52px;
+  letter-spacing:-.01em
+}
+
+.v1-stmt{
+  font-family:var(--corm);font-style:italic;font-size:21px;
+  line-height:2.4;color:rgba(0,0,0,.52);
+  padding-left:28px;border-left:1.5px solid rgba(0,0,0,.1);
+  margin-bottom:60px
+}
+.v1-stmt strong{font-style:normal;color:rgba(0,0,0,.8)}
+
+.v1-data{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  border:1px solid rgba(0,0,0,.08);margin-bottom:48px
+}
+.v1-data-cell{
+  padding:14px 20px;border-right:1px solid rgba(0,0,0,.06);
+  border-bottom:1px solid rgba(0,0,0,.06)
+}
+.v1-data-cell:nth-child(2n){border-right:none}
+.v1-data-cell:nth-last-child(-n+2){border-bottom:none}
+.v1-data-label{font-family:var(--mono);font-size:7px;color:rgba(0,0,0,.25);letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px}
+.v1-data-val{font-family:var(--fell);font-size:15px;color:rgba(0,0,0,.7)}
+
+.v1-coming{
+  font-family:var(--mono);font-size:8px;color:rgba(0,0,0,.22);
+  letter-spacing:.28em;text-transform:uppercase;
+  display:flex;align-items:center;gap:12px
+}
+.v1-coming::before{content:'△';color:rgba(0,0,0,.35)}
+
+/* scatter coords on light page */
+.v1-coord{
+  position:absolute;font-family:var(--mono);font-size:7px;
+  color:rgba(0,0,0,.1);letter-spacing:.12em;text-transform:uppercase;
+  pointer-events:none
+}
+
+/* ══ VEIL 2 — void: maybe poem, cinematic ══ */
+#v2{background:var(--void)}
+#cv2{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+.v2-scroll{
+  position:absolute;inset:0;overflow-y:auto;
+  display:flex;align-items:flex-start;justify-content:center;padding:80px 0 140px;
+  z-index:2
+}
+.v2-inner{max-width:620px;width:88%;position:relative}
+
+/* full-screen title that fades as you scroll — uses position sticky trick */
+.v2-hero{
+  height:70vh;display:flex;flex-direction:column;
+  justify-content:flex-end;padding-bottom:60px;
+  margin-bottom:80px;
+  border-bottom:1px solid rgba(232,228,214,.06)
+}
+.v2-hero-label{
+  font-family:var(--mono);font-size:7px;color:rgba(232,228,214,.2);
+  letter-spacing:.3em;text-transform:uppercase;margin-bottom:24px
+}
+.v2-hero-title{
+  font-family:var(--fell);font-size:clamp(60px,10vw,110px);
+  color:rgba(232,228,214,.88);line-height:.88;letter-spacing:-.02em
+}
+.v2-hero-sub{
+  font-family:var(--corm);font-style:italic;font-size:16px;
+  color:rgba(232,228,214,.22);margin-top:20px;letter-spacing:.05em
+}
+
+/* fragments */
+.frag{
+  margin-bottom:80px;position:relative;padding-left:40px
+}
+.frag-num{
+  position:absolute;left:0;top:4px;
+  font-family:var(--mono);font-size:8px;
+  color:rgba(232,228,214,.18);letter-spacing:.08em
+}
+/* vertical connecting line */
+.frag::before{
+  content:'';position:absolute;left:12px;top:20px;bottom:-60px;
+  width:1px;background:rgba(232,228,214,.05)
+}
+.frag:last-child::before{display:none}
+
+.frag-text{
+  font-family:var(--fell);font-style:italic;
+  font-size:18px;line-height:2.5;color:rgba(232,228,214,.62)
+}
+.frag-text .in{display:block;padding-left:28px;color:rgba(232,228,214,.38);font-size:16px}
+.frag-text .acc{color:rgba(232,228,214,.95);font-style:normal;font-size:22px}
+.frag-text .lo{color:rgba(232,228,214,.25);font-size:15px}
+
+/* ambient annotation, drawn absolutely on the page */
+.v2-annot{
+  font-family:var(--mono);font-size:7px;color:rgba(232,228,214,.1);
+  letter-spacing:.15em;text-transform:uppercase;
+  position:absolute;pointer-events:none;white-space:nowrap
+}
+
+/* ══ VEIL 3 — void: bloom poem, cinematic ══ */
+#v3{background:var(--void)}
+#cv3{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+.v3-scroll{
+  position:absolute;inset:0;overflow-y:auto;
+  display:flex;align-items:flex-start;justify-content:center;padding:80px 0 160px;
+  z-index:2
+}
+.v3-inner{max-width:600px;width:88%;position:relative}
+
+.v3-hero{
+  height:60vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding-bottom:60px;margin-bottom:80px;
+  border-bottom:1px solid rgba(232,228,214,.05)
+}
+.v3-hero-label{
+  font-family:var(--mono);font-size:7px;color:rgba(232,228,214,.18);
+  letter-spacing:.3em;text-transform:uppercase;margin-bottom:20px
+}
+.v3-hero-title{
+  font-family:var(--corm);font-style:italic;
+  font-size:clamp(32px,5vw,54px);color:rgba(232,228,214,.78);
+  line-height:1.3;letter-spacing:.02em
+}
+
+/* stanza blocks */
+.stanza{margin-bottom:72px;position:relative}
+.stanza-line{
+  font-family:var(--fell);font-style:italic;
+  font-size:18px;line-height:2.6;color:rgba(232,228,214,.58);
+  display:block
+}
+.stanza-line.hi{color:rgba(232,228,214,.92);font-style:normal}
+.stanza-line.fade{color:rgba(232,228,214,.24);font-size:16px}
+.stanza-line.em{
+  color:rgba(232,228,214,.85);font-style:normal;
+  font-size:20px;letter-spacing:.02em
+}
+.stanza-rule{
+  display:block;width:36px;height:1px;
+  background:rgba(232,228,214,.08);margin:36px 0
+}
+/* right-side annotation */
+.v3-aside{
+  position:absolute;right:-180px;top:0;
+  font-family:var(--mono);font-size:7px;
+  color:rgba(232,228,214,.1);letter-spacing:.14em;
+  text-transform:uppercase;line-height:1.8;
+  white-space:nowrap;pointer-events:none
+}
+
+/* ══ VEIL 4 — void: abstract doodle ══ */
+#v4{background:#08080c}
+#cv4{position:fixed;inset:0;z-index:1}
+/* text overlay on doodle */
+.v4-text{
+  position:fixed;inset:0;z-index:3;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none
+}
+.v4-poem{
+  font-family:var(--fell);font-style:italic;
+  font-size:clamp(15px,2vw,20px);line-height:2.6;
+  color:rgba(232,228,214,.45);text-align:center;
+  letter-spacing:.04em;max-width:420px
+}
+.v4-poem span{display:block}
+.v4-poem .str{color:rgba(232,228,214,.82);font-style:normal}
+.v4-poem .lo{color:rgba(232,228,214,.22);font-size:85%;margin-top:8px}
+
+/* ══ VEIL 5 — void: house poem ══ */
+#v5{background:var(--void)}
+#cv5{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+.v5-scroll{
+  position:absolute;inset:0;overflow-y:auto;
+  display:flex;align-items:flex-start;justify-content:center;padding:80px 0 160px;
+  z-index:2
+}
+.v5-inner{max-width:600px;width:88%;position:relative}
+
+.v5-hero{
+  height:50vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding-bottom:60px;margin-bottom:80px;
+  border-bottom:1px solid rgba(232,228,214,.05)
+}
+.v5-label{
+  font-family:var(--mono);font-size:7px;color:rgba(232,228,214,.18);
+  letter-spacing:.3em;text-transform:uppercase;margin-bottom:20px
+}
+.v5-title{
+  font-family:var(--fell);font-style:italic;
+  font-size:clamp(28px,4vw,46px);color:rgba(232,228,214,.72);line-height:1.3
+}
+
+.v5-block{margin-bottom:64px;position:relative}
+.v5-line{
+  font-family:var(--corm);font-style:italic;
+  font-size:18px;line-height:2.7;color:rgba(232,228,214,.52);display:block
+}
+.v5-line.bold{color:rgba(232,228,214,.9);font-style:normal;font-size:20px}
+.v5-line.dim{color:rgba(232,228,214,.22);font-size:15px}
+.v5-line.big{color:rgba(232,228,214,.85);font-style:normal;font-size:26px;letter-spacing:.03em;margin-top:12px}
+.v5-rule{display:block;width:28px;height:1px;background:rgba(232,228,214,.07);margin:28px 0}
+.v5-aside{
+  position:absolute;right:-160px;top:0;
+  font-family:var(--mono);font-size:7px;
+  color:rgba(232,228,214,.1);letter-spacing:.14em;
+  text-transform:uppercase;line-height:1.8;
+  white-space:nowrap;pointer-events:none
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<canvas id="cv"></canvas>
+<div id="pts"></div>
+
+<div class="corner c-tl">the butterfly effect<br>1972 — cambridge<br>&nbsp;<br>one wing. one world.</div>
+<div class="corner c-tr">schrödinger's cat<br>1935 — zurich<br>&nbsp;<br>alive. dead. both.</div>
+<div class="corner c-bl">△ PV · 2025<br>△ first work<br>△ dropping soon</div>
+<div class="corner c-br">a butterfly died<br>on my hand<br>△ prakhar vyas</div>
+<div id="sph">the observation changes the outcome — you are already inside the experiment</div>
+
+<!-- ══ HOME ══ -->
+<div id="stage">
+  <div style="position:relative;width:480px;height:480px;display:flex;align-items:center;justify-content:center">
+    <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div id="bw">
+      <svg id="bsvg" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="sf"><feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="gf"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <ellipse cx="160" cy="122" rx="95" ry="58" fill="none" stroke="rgba(232,228,214,0.02)" stroke-width="32" filter="url(#gf)"/>
+        <path id="wl"  class="w" filter="url(#sf)" d="M158,120 C140,98 98,62 52,42 C18,26 2,42 1,66 C0,90 26,112 62,120 C96,128 132,124 158,120 Z"/>
+        <path id="wr"  class="w" filter="url(#sf)" d="M162,120 C180,98 222,62 268,42 C302,26 318,42 319,66 C320,90 294,112 258,120 C224,128 188,124 162,120 Z"/>
+        <path id="wbl" class="w" filter="url(#sf)" d="M156,126 C136,142 104,164 72,172 C44,178 24,168 20,152 C16,136 36,124 72,126 C104,128 134,126 156,126 Z"/>
+        <path id="wbr" class="w" filter="url(#sf)" d="M164,126 C184,142 216,164 248,172 C276,178 296,168 300,152 C304,136 284,124 248,126 C216,128 186,126 164,126 Z"/>
+        <path d="M158,120 C138,106 108,88 76,70" stroke="rgba(232,228,214,.04)" stroke-width=".7" fill="none"/>
+        <path d="M158,120 C128,116 96,120 64,128" stroke="rgba(232,228,214,.04)" stroke-width=".7" fill="none"/>
+        <path d="M162,120 C182,106 212,88 244,70" stroke="rgba(232,228,214,.04)" stroke-width=".7" fill="none"/>
+        <path d="M162,120 C192,116 224,120 256,128" stroke="rgba(232,228,214,.04)" stroke-width=".7" fill="none"/>
+        <ellipse id="wbody" cx="160" cy="122" rx="3" ry="38" fill="rgba(232,228,214,.45)" style="cursor:pointer"/>
+        <ellipse cx="160" cy="82" rx="4.5" ry="4.5" fill="rgba(232,228,214,.35)"/>
+        <path d="M157,78 Q148,56 143,42" stroke="rgba(232,228,214,.2)" stroke-width=".9" fill="none"/>
+        <path d="M163,78 Q172,56 177,42" stroke="rgba(232,228,214,.2)" stroke-width=".9" fill="none"/>
+        <circle cx="143" cy="42" r="2" fill="rgba(232,228,214,.25)"/>
+        <circle cx="177" cy="42" r="2" fill="rgba(232,228,214,.25)"/>
+      </svg>
+      <div id="ttl">a butterfly died on my hand</div>
+      <div id="obs">// to observe is to alter</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VEIL 1: light page ══ -->
+<div id="v1" class="veil">
+  <canvas class="v1-bg" id="cv1"></canvas>
+  <button class="escb dk" onclick="closeV('v1')">esc</button>
+
+  <!-- decorative strips -->
+  <div class="v1-strip" style="top:28px;left:50%;transform:translateX(-50%)">△ fragment_00 · book statement · PV-2025 · first work △</div>
+  <div class="v1-coord" style="top:60px;left:40px">47°21'N<br>14°10'E</div>
+  <div class="v1-coord" style="top:60px;right:40px;text-align:right">LOOK 01/∞<br>REF_PV2025</div>
+  <div class="v1-coord" style="bottom:40px;left:40px">one breath<br>from enough</div>
+  <div class="v1-coord" style="bottom:40px;right:40px;text-align:right">to observe<br>is to alter</div>
+
+  <div class="v1-scroll">
+    <div class="v1-inner">
+      <div class="v1-label">// what this is — how it was made</div>
+
+      <div class="v1-title">
+        a butterfly<br>
+        died on<br>
+        my hand.
+      </div>
+
+      <div class="v1-stmt">
+        i held onto things longer than i should have<br>
+        turned them over again and again<br>
+        <strong>until they softened.</strong><br><br>
+        this book is made of what stayed<br>
+        long enough to change me.
+      </div>
+
+      <div class="v1-rule"></div>
+
+      <div class="v1-data">
+        <div class="v1-data-cell">
+          <div class="v1-data-label">Title</div>
+          <div class="v1-data-val">a butterfly died on my hand</div>
+        </div>
+        <div class="v1-data-cell">
+          <div class="v1-data-label">Author</div>
+          <div class="v1-data-val">Prakhar Vyas</div>
+        </div>
+        <div class="v1-data-cell">
+          <div class="v1-data-label">Themes</div>
+          <div class="v1-data-val">Butterfly Effect · Schrödinger's Cat</div>
+        </div>
+        <div class="v1-data-cell">
+          <div class="v1-data-label">Form</div>
+          <div class="v1-data-val">Prose / Poetry / Hybrid</div>
+        </div>
+        <div class="v1-data-cell">
+          <div class="v1-data-label">Method</div>
+          <div class="v1-data-val">Obsessive reconstruction</div>
+        </div>
+        <div class="v1-data-cell">
+          <div class="v1-data-label">Status</div>
+          <div class="v1-data-val">Dropping Soon</div>
+        </div>
+      </div>
+
+      <div class="v1-coming">coming soon — prakhar vyas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VEIL 2: maybe poem ══ -->
+<div id="v2" class="veil">
+  <canvas id="cv2"></canvas>
+  <button class="escb" onclick="closeV('v2')">esc</button>
+
+  <div class="v2-scroll">
+    <div class="v2-inner">
+
+      <!-- ambient annotations scattered -->
+      <div class="v2-annot" style="left:-140px;top:200px;writing-mode:vertical-rl;transform:rotate(180deg)">quantum superposition · both states · neither</div>
+      <div class="v2-annot" style="right:-140px;top:400px;writing-mode:vertical-rl">the wave collapses when observed</div>
+
+      <div class="v2-hero">
+        <div class="v2-hero-label">// fragment II — alternate world protocol</div>
+        <div class="v2-hero-title">MAYBE?</div>
+        <div class="v2-hero-sub">nine fragments. one question. no answer.</div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">I</span>
+        <div class="frag-text">
+          Maybe he makes everything work<br>
+          in an alternate reality.
+        </div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">II</span>
+        <div class="frag-text">
+          Maybe he didn't wish to end it all.
+        </div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">III</span>
+        <div class="frag-text">
+          Maybe his voice doesn't falter,
+          <span class="in">his hands don't shake,</span>
+          <span class="in">his mind doesn't loop back</span>
+          <span class="in lo">to all the ways he failed.</span>
+        </div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">IV</span>
+        <div class="frag-text">
+          his hands weren't made for trembling,
+          <span class="in lo">weren't made for breaking things</span>
+          <span class="in lo">he never learned to hold.</span>
+        </div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">V</span>
+        <div class="frag-text">Maybe he hated himself a little less.</div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">VI</span>
+        <div class="frag-text">
+          Maybe he walks through doors without hesitating,
+          <span class="in lo">without feeling like an apology wrapped in skin.</span>
+        </div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">VII</span>
+        <div class="frag-text">
+          Maybe the world is gentle there.<br>
+          Maybe loss is not a lesson but a myth,
+          <span class="in lo">and love is not something time can steal.</span>
+        </div>
+      </div>
+
+      <div class="frag">
+        <span class="frag-num">VIII</span>
+        <div class="frag-text">
+          Maybe what he loves stays.<br>
+          Maybe he stays, too.
+        </div>
+      </div>
+
+      <div class="frag" style="margin-bottom:0">
+        <span class="frag-num">∞</span>
+        <div class="frag-text">
+          <span class="acc">Maybe?</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ VEIL 3: bloom poem ══ -->
+<div id="v3" class="veil">
+  <canvas id="cv3"></canvas>
+  <button class="escb" onclick="closeV('v3')">esc</button>
+
+  <div class="v3-scroll">
+    <div class="v3-inner">
+
+      <div class="v3-hero">
+        <div class="v3-hero-label">// fragment III — what was done to the bloom</div>
+        <div class="v3-hero-title">
+          you broke me<br>
+          like a bloom<br>
+          you feared to water.
+        </div>
+      </div>
+
+      <div class="stanza">
+        <div class="v3-aside">held<br>petals<br>like<br>proof</div>
+        <span class="stanza-line">you broke me like a bloom</span>
+        <span class="stanza-line hi">you feared to water,</span>
+        <span class="stanza-line">&nbsp;</span>
+        <span class="stanza-line">held petals in your palm</span>
+        <span class="stanza-line fade">like proof instead of love.</span>
+      </div>
+
+      <div class="stanza">
+        <span class="stanza-rule"></span>
+        <span class="stanza-line">now you gather what you shattered,</span>
+        <span class="stanza-line">hoping wilt can turn to spring</span>
+        <span class="stanza-line">&nbsp;</span>
+        <span class="stanza-line em">but every piece remembers the tearing.</span>
+      </div>
+
+      <div class="stanza">
+        <span class="stanza-rule"></span>
+        <span class="stanza-line hi">hold me and bleed.</span>
+        <span class="stanza-line hi">hold me, and regret.</span>
+        <span class="stanza-line">&nbsp;</span>
+        <span class="stanza-line fade">for flowers do not rise</span>
+        <span class="stanza-line fade">for hands that pulled them apart.</span>
+      </div>
+
+      <div class="stanza">
+        <span class="stanza-rule"></span>
+        <span class="stanza-line">you broke me like a bloom</span>
+        <span class="stanza-line fade">you never meant to water.</span>
+        <span class="stanza-line">&nbsp;</span>
+        <span class="stanza-line">you kept the petals as proof, not love.</span>
+        <span class="stanza-line">&nbsp;</span>
+        <span class="stanza-line">now you want me living again</span>
+        <span class="stanza-line">&nbsp;</span>
+        <span class="stanza-line hi" style="font-size:20px">but flowers don't rise</span>
+        <span class="stanza-line hi" style="padding-left:28px">for hands</span>
+        <span class="stanza-line hi" style="padding-left:56px">that pulled them apart.</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ VEIL 4: abstract doodle ══ -->
+<div id="v4" class="veil">
+  <button class="escb" onclick="closeV('v4')">esc</button>
+  <canvas id="cv4" style="position:fixed;inset:0;z-index:1"></canvas>
+  <div class="v4-text">
+    <div class="v4-poem">
+      <span class="str">it came to me</span>
+      <span>&nbsp;</span>
+      <span>i held it like something that could stay</span>
+      <span>&nbsp;</span>
+      <span class="lo">when it went still i blamed my hands</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VEIL 5: house poem ══ -->
+<div id="v5" class="veil">
+  <canvas id="cv5"></canvas>
+  <button class="escb" onclick="closeV('v5')">esc</button>
+
+  <div class="v5-scroll">
+    <div class="v5-inner">
+
+      <div class="v5-hero">
+        <div class="v5-label">// fragment V — the boy, the house, the measurements</div>
+        <div class="v5-title">
+          i wish you were gentle<br>
+          to the boy i was
+        </div>
+      </div>
+
+      <div class="v5-block">
+        <div class="v5-aside">before<br>the loops<br>before<br>the words</div>
+        <span class="v5-line">he slept with his dreams folded beneath his ribs,</span>
+        <span class="v5-line dim">hopes pressed flat</span>
+        <span class="v5-line dim">so the world wouldn't hear them crack.</span>
+        <span class="v5-rule"></span>
+        <span class="v5-line">i wish you saw them.</span>
+        <span class="v5-line bold">i wish you saw the man i became.</span>
+      </div>
+
+      <div class="v5-block">
+        <span class="v5-line">you talk about my failures like a morning prayer</span>
+        <span class="v5-line dim">mouth full of my name, hands clean of blame,</span>
+        <span class="v5-line dim">as if shame were a ritual</span>
+        <span class="v5-line dim" style="padding-left:28px;font-size:14px">that could rinse me into worth.</span>
+        <span class="v5-rule"></span>
+        <span class="v5-line bold">a dead son is not better than a failed one.</span>
+        <span class="v5-line">sometimes i wish i were,</span>
+        <span class="v5-line dim">because i am tired</span>
+        <span class="v5-line dim" style="padding-left:28px;font-size:14px">of surviving</span>
+      </div>
+
+      <div class="v5-block" style="margin-bottom:0">
+        <span class="v5-rule"></span>
+        <span class="v5-line">this house knows my measurements</span>
+        <span class="v5-line dim">love stops just short of me,</span>
+        <span class="v5-line dim">and i am always</span>
+        <span style="display:block;height:16px"></span>
+        <span class="v5-line dim" style="padding-left:28px;font-size:15px">one breath</span>
+        <span style="display:block;height:16px"></span>
+        <span class="v5-line big">from enough.</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── cursor ──
+const cur=document.getElementById('cur');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+
+// ── sine field factory ──
+function makeSineField(canvas, alphaScale, colorR, colorG, colorB){
+  const ctx=canvas.getContext('2d');
+  let t=Math.random()*100;
+  function draw(){
+    canvas.width=innerWidth; canvas.height=innerHeight;
+    const W=canvas.width, H=canvas.height;
+    for(let i=0;i<7;i++){
+      const ph=(i/7)*Math.PI*2, amp=22+i*9, freq=0.0034+i*0.0009;
+      const y0=H*(0.08+i*0.14);
+      ctx.beginPath();
+      for(let x=0;x<=W;x+=4){
+        const y=y0+Math.sin(x*freq+t+ph)*amp+Math.sin(x*freq*.48+t*.58+ph)*amp*.38;
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      const a=(0.009+i*0.003)*alphaScale;
+      ctx.strokeStyle=`rgba(${colorR},${colorG},${colorB},${a})`;
+      ctx.lineWidth=1; ctx.stroke();
+    }
+    t+=0.004;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// home canvas
+makeSineField(document.getElementById('cv'),1,232,228,214);
+
+// veil canvases — dark
+['cv2','cv3','cv5'].forEach(id=>makeSineField(document.getElementById(id),1,232,228,214));
+
+// light page canvas — dark ink lines on cream
+makeSineField(document.getElementById('cv1'),1.8,0,0,0);
+
+// ── abstract doodle canvas ──
+const cv4=document.getElementById('cv4');
+const ctx4=cv4.getContext('2d');
+
+function drawDoodle(){
+  cv4.width=innerWidth; cv4.height=innerHeight;
+  const W=cv4.width, H=cv4.height;
+  ctx4.clearRect(0,0,W,H);
+  ctx4.lineCap='round'; ctx4.lineJoin='round';
+
+  const bone='rgba(232,228,214,';
+  const rnd=(min,max)=>min+Math.random()*(max-min);
+  // seeded random for consistency
+  let s=42;
+  function sr(){s=(s*1664525+1013904223)&0xffffffff;return(s>>>0)/0xffffffff}
+
+  // helper: wobbly stroke
+  function scribble(pts,alpha,w){
+    if(pts.length<2)return;
+    ctx4.beginPath();
+    ctx4.strokeStyle=bone+alpha+')';
+    ctx4.lineWidth=w;
+    ctx4.moveTo(pts[0][0],pts[0][1]);
+    for(let i=1;i<pts.length;i++){
+      const p=pts[i-1],c=pts[i];
+      ctx4.quadraticCurveTo(p[0],p[1],(p[0]+c[0])/2,(p[1]+c[1])/2);
+    }
+    ctx4.lineTo(pts[pts.length-1][0],pts[pts.length-1][1]);
+    ctx4.stroke();
+  }
+
+  // random scratchy lines all over
+  for(let i=0;i<90;i++){
+    const x=sr()*W, y=sr()*H;
+    const len=20+sr()*120;
+    const angle=sr()*Math.PI*2;
+    const pts=[];
+    let cx=x,cy=y;
+    const steps=3+Math.floor(sr()*8);
+    for(let j=0;j<steps;j++){
+      cx+=Math.cos(angle+sr()*.8-.4)*(len/steps)+(sr()-.5)*12;
+      cy+=Math.sin(angle+sr()*.8-.4)*(len/steps)+(sr()-.5)*12;
+      pts.push([cx,cy]);
+    }
+    scribble([[x,y],...pts],0.04+sr()*0.12,0.6+sr()*1.4);
+  }
+
+  // circular scribbles
+  for(let i=0;i<22;i++){
+    const cx=sr()*W, cy=sr()*H;
+    const r=8+sr()*60;
+    const pts=[];
+    const laps=1+Math.floor(sr()*2);
+    for(let a=0;a<=Math.PI*2*laps+.2;a+=0.18+sr()*0.1){
+      const jitter=sr()*8-4;
+      pts.push([cx+Math.cos(a)*(r+jitter), cy+Math.sin(a)*(r+jitter)]);
+    }
+    scribble(pts,0.04+sr()*0.1,0.7+sr()*1.2);
+  }
+
+  // long sweeping arcs — like wing shapes vaguely
+  for(let i=0;i<14;i++){
+    const sx=sr()*W, sy=sr()*H;
+    const ex=sx+(sr()-.4)*W*.5, ey=sy+(sr()-.4)*H*.4;
+    const mx=(sx+ex)/2+(sr()-.5)*200, my=(sy+ey)/2+(sr()-.5)*200;
+    ctx4.beginPath();
+    ctx4.moveTo(sx,sy);
+    ctx4.quadraticCurveTo(mx,my,ex,ey);
+    ctx4.strokeStyle=bone+(0.03+sr()*0.09)+')';
+    ctx4.lineWidth=0.5+sr()*1.5;
+    ctx4.stroke();
+  }
+
+  // stray dots — like ink drops
+  for(let i=0;i<60;i++){
+    const x=sr()*W, y=sr()*H, r=0.5+sr()*3;
+    ctx4.beginPath();
+    ctx4.arc(x,y,r,0,Math.PI*2);
+    ctx4.fillStyle=bone+(0.04+sr()*0.18)+')';
+    ctx4.fill();
+  }
+
+  // very faint butterfly outline in center — abstract/partial
+  const bx=W/2, by=H/2;
+  function bf(dx,dy,cp1x,cp1y,cp2x,cp2y,ex,ey,alpha){
+    ctx4.beginPath();
+    ctx4.moveTo(bx+dx,by+dy);
+    ctx4.bezierCurveTo(bx+cp1x,by+cp1y,bx+cp2x,by+cp2y,bx+ex,by+ey);
+    ctx4.strokeStyle=bone+alpha+')';
+    ctx4.lineWidth=1;
+    ctx4.stroke();
+  }
+  // four wing ghost curves, very faint
+  bf(0,0,-70,-70,-120,-30,-80,20,0.07);
+  bf(0,0,70,-70,120,-30,80,20,0.07);
+  bf(0,5,-50,30,-60,60,-30,75,0.05);
+  bf(0,5,50,30,60,60,30,75,0.05);
+  // body ghost
+  ctx4.beginPath();
+  ctx4.moveTo(bx,by-50);ctx4.lineTo(bx+1,by+55);
+  ctx4.strokeStyle=bone+'0.09)'; ctx4.lineWidth=1; ctx4.stroke();
+
+  // tiny clustered scratches near random hotspots
+  [[W*.2,H*.3],[W*.75,H*.6],[W*.5,H*.15],[W*.3,H*.8],[W*.8,H*.25]].forEach(([hx,hy])=>{
+    for(let i=0;i<12;i++){
+      const a=sr()*Math.PI*2, len=6+sr()*30;
+      scribble([[hx,hy],[hx+Math.cos(a)*len+(sr()-.5)*10,hy+Math.sin(a)*len+(sr()-.5)*10]],0.05+sr()*0.12,0.6+sr());
+    }
+  });
+
+  // cross marks
+  [[W*.1,H*.2],[W*.9,H*.8],[W*.15,H*.75],[W*.85,H*.15],[W*.6,H*.9],[W*.4,H*.05]].forEach(([x,y])=>{
+    const sz=4+sr()*10;
+    scribble([[x-sz,y],[x+sz,y]],0.1+sr()*0.12,0.8);
+    scribble([[x,y-sz],[x,y+sz]],0.1+sr()*0.12,0.8);
+  });
+}
+
+drawDoodle();
+window.addEventListener('resize',drawDoodle);
+
+// ── particles ──
+const pts=document.getElementById('pts');
+setInterval(()=>{
+  const p=document.createElement('div');
+  p.className='pt';
+  const sz=1+Math.random()*1.6;
+  p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;bottom:-5px;--d:${(Math.random()-.5)*90}px;animation-duration:${12+Math.random()*12}s;animation-delay:${Math.random()*2}s`;
+  pts.appendChild(p); setTimeout(()=>p.remove(),28000);
+},700);
+
+// ── wing hover ──
+['wl','wr','wbl','wbr'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('mouseenter',()=>{el.classList.add('alive');cur.classList.add('big')});
+  el.addEventListener('mouseleave',()=>{el.classList.remove('alive');cur.classList.remove('big')});
+});
+
+// ── wing clicks ──
+document.getElementById('wl').addEventListener('click',()=>openV('v1'));
+document.getElementById('wr').addEventListener('click',()=>openV('v2'));
+document.getElementById('wbl').addEventListener('click',()=>openV('v3'));
+document.getElementById('wbr').addEventListener('click',()=>openV('v4'));
+document.getElementById('wbody').addEventListener('click',()=>openV('v5'));
+
+function openV(id){document.getElementById(id).classList.add('open')}
+function closeV(id){document.getElementById(id).classList.remove('open')}
+window.closeV=closeV;
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){document.querySelectorAll('.veil.open').forEach(v=>v.classList.remove('open'))}
+});
+
+// ── rotating phrase ──
+const phrases=[
+  'the observation changes the outcome — you are already inside the experiment',
+  'the cat is alive · the cat is dead · the cat is both',
+  'a wing moved somewhere · nothing will be the same',
+  'to open this is to collapse the wave function',
+  'every fragment held is a universe deferred',
+  'did the butterfly die — or did it become the hand?',
+  'i held onto things longer than i should have',
+  'nothing was understood',
+];
+let pi=0;
+const sp=document.getElementById('sph');
+setInterval(()=>{
+  sp.style.opacity='0';
+  setTimeout(()=>{pi=(pi+1)%phrases.length;sp.textContent=phrases[pi];sp.style.opacity=''},1400);
+},8000);
+</script>
+</body>
+</html>
